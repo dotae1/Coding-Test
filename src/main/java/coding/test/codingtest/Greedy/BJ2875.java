@@ -1,0 +1,41 @@
+package coding.test.codingtest.Greedy;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.StringTokenizer;
+
+public class BJ2875 {
+    public static void main(String[] args) throws IOException {
+        /**
+         * 백준 2875번 문제
+         * 백준대학교에서는 대회에 나갈 때 2명의 여학생과 1명의 남학생이 팀을 결성해서 나가는 것이 원칙이다. (왜인지는 총장님께 여쭈어보는 것이 좋겠다.)
+         * 백준대학교는 뛰어난 인재들이 많아 올해에도 N명의 여학생과 M명의 남학생이 팀원을 찾고 있다. 대회에 참여하려는 학생들 중 K명은 반드시 인턴쉽 프로그램에 참여해야 한다.
+         * 인턴쉽에 참여하는 학생은 대회에 참여하지 못한다.
+         * 백준대학교에서는 뛰어난 인재들이 많기 때문에, 많은 팀을 만드는 것이 최선이다.
+         * 여러분은 여학생의 수 N, 남학생의 수 M, 인턴쉽에 참여해야하는 인원 K가 주어질 때 만들 수 있는 최대의 팀 수를 구하면 된다.
+         * 입력 : 첫째 줄에 N, M, K가 순서대로 주어진다. (0 ≤ M ≤ 100, 0 ≤ N ≤ 100, 0 ≤ K ≤ M+N),
+         * 출력 : 만들 수 있는 팀의 최대 개수을 출력하면 된다.
+         */
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
+
+        //여학생의 수
+        int N = Integer.parseInt(st.nextToken());
+        //남학생의 수
+        int M = Integer.parseInt(st.nextToken());
+        //인턴쉽을 참여해야 하는 인원의 수
+        int K = Integer.parseInt(st.nextToken());
+
+        int count = 0;
+
+        while(N >= 2 && M >= 1 && N+M >= 3+K) {
+            N -= 2;
+            M--;
+            count++;
+        }
+
+        System.out.println(count);
+
+    }
+}
