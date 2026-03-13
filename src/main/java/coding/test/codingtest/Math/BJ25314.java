@@ -6,7 +6,8 @@ public class BJ25314 {
 
     /**
      * 4 -> long int
-     * 20 -> long long long long long int 출력
+     * 20 -> long long long long long int
+     * 입력값 -> 결과괎
      */
     public static void main(String[] args){
         Scanner scan = new Scanner(System.in);
