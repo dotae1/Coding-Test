@@ -179,3 +179,39 @@ FROM ECOLI_DATA C
 JOIN ECOLI_DATA P ON C.PARENT_ID = P.ID
 WHERE (C.GENOTYPE & P.GENOTYPE) = P.GENOTYPE
 ORDER BY C.ID ASC;
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+LEVEL3
+
+1. 대장균 개체의 ID(ID)와 자식의 수(CHILD_COUNT)를 출력하는 SQL 문을 작성해주세요. 자식이 없다면 자식의 수는 0으로 출력해주세요. 이때 결과는 개체의 ID 에 대해 오름차순 정렬해주세요.
+SELECT E1.ID,
+       COUNT(E2.ID) AS CHILD_COUNT
+FROM ECOLI_DATA E1
+LEFT JOIN ECOLI_DATA E2
+    ON E1.ID = E2.PARENT_ID
+GROUP BY E1.ID
+ORDER BY E1.ID ASC;
+
+2. 대장균 개체의 크기가 100 이하라면 'LOW', 100 초과 1000 이하라면 'MEDIUM', 1000 초과라면 'HIGH' 라고 분류합니다.
+대장균 개체의 ID(ID) 와 분류(SIZE)를 출력하는 SQL 문을 작성해주세요.이때 결과는 개체의 ID 에 대해 오름차순 정렬해주세요.
+SELECT ID, CASE
+               WHEN SIZE_OF_COLONY <= 100 THEN 'LOW'
+               WHEN SIZE_OF_COLONY > 100 AND SIZE_OF_COLONY <=1000 THEN "MEDIUM"
+               WHEN SIZE_OF_COLONY > 1000 THEN 'HIGH'
+END AS SIZE
+FROM ECOLI_DATA
+ORDER BY ID ASC
+
+3. 대장균 개체의 크기를 내름차순으로 정렬했을 때 상위 0% ~ 25% 를 'CRITICAL', 26% ~ 50% 를 'HIGH', 51% ~ 75% 를 'MEDIUM', 76% ~ 100% 를 'LOW' 라고 분류합니다.
+대장균 개체의 ID(ID) 와 분류된 이름(COLONY_NAME)을 출력하는 SQL 문을 작성해주세요.이때 결과는 개체의 ID 에 대해 오름차순 정렬해주세요 .
+        단, 총 데이터의 수는 4의 배수이며 같은 사이즈의 대장균 개체가 서로 다른 이름으로 분류되는 경우는 없습니다.
+// NTILE : 데이터를 (N)등분 한다.
+SELECT ID,
+       CASE
+           WHEN NTILE(4) OVER (ORDER BY SIZE_OF_COLONY DESC) = 1 THEN 'CRITICAL'
+           WHEN NTILE(4) OVER (ORDER BY SIZE_OF_COLONY DESC) = 2 THEN 'HIGH'
+           WHEN NTILE(4) OVER (ORDER BY SIZE_OF_COLONY DESC) = 3 THEN 'MEDIUM'
+           ELSE 'LOW'
+END AS COLONY_NAME
+FROM ECOLI_DATA
+ORDER BY ID ASC

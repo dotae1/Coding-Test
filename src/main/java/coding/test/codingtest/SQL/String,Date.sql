@@ -110,3 +110,68 @@ SELECT
 FROM ECOLI_DATA
 GROUP BY CONCAT(QUARTER(DIFFERENTIATION_DATE), 'Q')
 ORDER BY QUARTER;
+
+------------------------------------------------------------------------------------------------------------------------------------------------------
+LEVEL3
+
+1. CAR_RENTAL_COMPANY_CAR 테이블과 CAR_RENTAL_COMPANY_RENTAL_HISTORY 테이블에서 자동차 종류가 '세단'인 자동차들 중 10월에 대여를 시작한 기록이 있는
+자동차 ID 리스트를 출력하는 SQL문을 작성해주세요. 자동차 ID 리스트는 중복이 없어야 하며, 자동차 ID를 기준으로 내림차순 정렬해주세요.
+SELECT DISTINCT(c.CAR_ID)
+FROM CAR_RENTAL_COMPANY_CAR c
+JOIN CAR_RENTAL_COMPANY_RENTAL_HISTORY h ON c.CAR_ID = h.CAR_ID
+WHERE c.CAR_TYPE = '세단' AND MONTH(START_DATE) = 10
+ORDER BY CAR_ID DESC
+
+2. USED_GOODS_BOARD와 USED_GOODS_FILE 테이블에서 조회수가 가장 높은 중고거래 게시물에 대한 첨부파일 경로를 조회하는 SQL문을 작성해주세요.
+첨부파일 경로는 FILE ID를 기준으로 내림차순 정렬해주세요. 기본적인 파일경로는 /home/grep/src/ 이며,
+게시글 ID를 기준으로 디렉토리가 구분되고, 파일이름은 파일 ID, 파일 이름, 파일 확장자로 구성되도록 출력해주세요. 조회수가 가장 높은 게시물은 하나만 존재합니다.
+-- 코드를 입력하세요
+SELECT CONCAT('/home/grep/src/', u.BOARD_ID,'/', f.FILE_ID,f.FILE_NAME, f.FILE_EXT) AS FILE_PATH
+FROM USED_GOODS_BOARD u
+JOIN USED_GOODS_FILE f ON u.BOARD_ID = f.BOARD_ID
+WHERE u.VIEWS = (
+    SELECT MAX(VIEWS)
+    FROM USED_GOODS_BOARD
+)
+ORDER BY FILE_ID DESC
+
+
+3. USED_GOODS_BOARD와 USED_GOODS_USER 테이블에서 중고 거래 게시물을 3건 이상 등록한 사용자의 사용자 ID, 닉네임, 전체주소, 전화번호를 조회하는 SQL문을 작성해주세요.
+이때, 전체 주소는 시, 도로명 주소, 상세 주소가 함께 출력되도록 해주시고,
+전화번호의 경우 xxx-xxxx-xxxx 같은 형태로 하이픈 문자열(-)을 삽입하여 출력해주세요. 결과는 회원 ID를 기준으로 내림차순 정렬해주세요.
+SELECT
+    u.USER_ID,
+    u.NICKNAME,
+    CONCAT(u.CITY, ' ', u.STREET_ADDRESS1, ' ', u.STREET_ADDRESS2) AS '전체주소',
+    CONCAT(
+        SUBSTRING(u.TLNO, 1, 3), '-',
+        SUBSTRING(u.TLNO, 4, 4), '-',
+        SUBSTRING(u.TLNO, 8, 4)
+    ) AS '전화번호'
+FROM USED_GOODS_BOARD b
+JOIN USED_GOODS_USER u
+    ON u.USER_ID = b.WRITER_ID
+GROUP BY u.USER_ID
+HAVING COUNT(*) >= 3
+ORDER BY u.USER_ID DESC;
+
+4. FOOD_ORDER 테이블에서 2022년 5월 1일을 기준으로 주문 ID, 제품 ID, 출고일자, 출고여부를 조회하는 SQL문을 작성해주세요.
+출고여부는 2022년 5월 1일까지 출고완료로 이 후 날짜는 출고 대기로 미정이면 출고미정으로 출력해주시고, 결과는 주문 ID를 기준으로 오름차순 정렬해주세요.
+SELECT ORDER_ID,
+PRODUCT_ID,
+DATE_FORMAT(OUT_DATE, '%Y-%m-%d') AS 'OUT_DATE',
+CASE
+    WHEN OUT_DATE IS NULL THEN '출고미정'
+    WHEN DATE_FORMAT(OUT_DATE, '%Y-%m-%d') <= '2022-05-01' THEN '출고완료'
+    WHEN DATE_FORMAT(OUT_DATE, '%Y-%m-%d') > '2022-05-01' THEN '출고대기'
+END AS '출고여부'
+FROM FOOD_ORDER
+ORDER BY ORDER_ID ASC
+
+5.입양을 간 동물 중, 보호 기간이 가장 길었던 동물 두 마리의 아이디와 이름을 조회하는 SQL문을 작성해주세요. 이때 결과는 보호 기간이 긴 순으로 조회해야 합니다.
+SELECT o.ANIMAL_ID, o.NAME
+FROM ANIMAL_OUTS o
+         JOIN ANIMAL_INS i
+              ON i.ANIMAL_ID = o.ANIMAL_ID
+ORDER BY DATEDIFF(o.DATETIME, i.DATETIME) DESC
+    LIMIT 2;
