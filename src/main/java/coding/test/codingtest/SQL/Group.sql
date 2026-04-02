@@ -118,6 +118,8 @@ FROM FISH_INFO
 GROUP BY MONTH(TIME)
 ORDER BY MONTH(TIME) ASC
 
+----------------------------------------------------------------------------------------------------
+
 LEVEL3
 1.2022년 1월의 카테고리 별 도서 판매량을 합산하고, 카테고리(CATEGORY), 총 판매량(TOTAL_SALES) 리스트를 출력하는 SQL문을 작성해주세요.
 결과는 카테고리명을 기준으로 오름차순 정렬해주세요.
@@ -127,3 +129,23 @@ FROM BOOK b
 WHERE DATE_FORMAT(SALES_DATE, '%Y-%m') = '2022-01'
 GROUP BY b.CATEGORY
 ORDER BY CATEGORY ASC
+
+2. USED_GOODS_BOARD와 USED_GOODS_USER 테이블에서 완료된 중고 거래의 총금액이 70만 원 이상인 사람의 회원 ID,
+닉네임, 총거래금액을 조회하는 SQL문을 작성해주세요. 결과는 총거래금액을 기준으로 오름차순 정렬해주세요.
+SELECT u.USER_ID, u.NICKNAME, SUM(b.PRICE) AS TOTAL_SALES
+FROM USED_GOODS_USER u
+JOIN USED_GOODS_BOARD b ON b.WRITER_ID = u.USER_ID
+WHERE b.STATUS = 'DONE'
+GROUP BY b.WRITER_ID
+HAVING SUM(b.PRICE) >= 700000
+ORDER BY TOTAL_SALES
+
+3.REST_INFO 테이블에서 음식종류별로 즐겨찾기수가 가장 많은 식당의 음식 종류, ID, 식당 이름, 즐겨찾기수를 조회하는 SQL문을 작성해주세요. 이때 결과는 음식 종류를 기준으로 내림차순 정렬해주세요.
+SELECT FOOD_TYPE, REST_ID, REST_NAME, FAVORITES
+FROM REST_INFO r
+WHERE FAVORITES = (
+    SELECT MAX(FAVORITES)
+    FROM REST_INFO
+    WHERE FOOD_TYPE = r.FOOD_TYPE
+)
+ORDER BY FOOD_TYPE DESC;
