@@ -158,3 +158,60 @@ FROM HR_DEPARTMENT h
 JOIN HR_EMPLOYEES e ON h.DEPT_ID = e.DEPT_ID
 GROUP BY DEPT_ID
 ORDER BY AVG_SAL DESC
+
+5.CAR_RENTAL_COMPANY_RENTAL_HISTORY 테이블에서 2022년 10월 16일에 대여 중인 자동차인 경우 '대여중' 이라고 표시하고,
+대여 중이지 않은 자동차인 경우 '대여 가능'을 표시하는 컬럼(컬럼명: AVAILABILITY)을 추가하여 자동차 ID와 AVAILABILITY 리스트를 출력하는 SQL문을 작성해주세요.
+이때 반납 날짜가 2022년 10월 16일인 경우에도 '대여중'으로 표시해주시고 결과는 자동차 ID를 기준으로 내림차순 정렬해주세요.
+// MAX()를 사용하지 않으면 GROUP BY 로 묶은 CAR_ID의 DATE행 중 랜덤값이 부여되어, 정확한 정렬이 불가하다.
+// 따라서 MAX를 활용하여, 문자열 정렬 순서 상 대여중이 대여가능보다 뒤에 오기에, 대여중으로 수렴한다.
+SELECT
+    CAR_ID,
+    MAX(CASE
+            WHEN '2022-10-16' BETWEEN START_DATE AND END_DATE THEN '대여중'
+            ELSE '대여 가능'
+        END) AS AVAILABILITY
+FROM CAR_RENTAL_COMPANY_RENTAL_HISTORY
+GROUP BY CAR_ID
+ORDER BY CAR_ID DESC;
+
+6. FISH_INFO에서 평균 길이가 33cm 이상인 물고기들을 종류별로 분류하여 잡은 수, 최대 길이, 물고기의 종류를 출력하는 SQL문을 작성해주세요.
+결과는 물고기 종류에 대해 오름차순으로 정렬해주시고, 10cm이하의 물고기들은 10cm로 취급하여 평균 길이를 구해주세요.
+컬럼명은 물고기의 종류 'FISH_TYPE', 잡은 수 'FISH_COUNT', 최대 길이 'MAX_LENGTH'로 해주세요.
+SELECT
+    COUNT(*) AS FISH_COUNT,
+    MAX(IFNULL(LENGTH, 10)) AS MAX_LENGTH,
+    FISH_TYPE
+FROM FISH_INFO
+GROUP BY FISH_TYPE
+HAVING AVG(IFNULL(LENGTH, 10)) >= 33
+ORDER BY FISH_TYPE ASC;
+
+7.CAR_RENTAL_COMPANY_RENTAL_HISTORY 테이블에서 대여 시작일을 기준으로 2022년 8월부터 2022년 10월까지 총 대여 횟수가 5회 이상인 자동차들에 대해서
+해당 기간 동안의 월별 자동차 ID 별 총 대여 횟수(컬럼명: RECORDS) 리스트를 출력하는 SQL문을 작성해주세요.
+결과는 월을 기준으로 오름차순 정렬하고, 월이 같다면 자동차 ID를 기준으로 내림차순 정렬해주세요. 특정 월의 총 대여 횟수가 0인 경우에는 결과에서 제외해주세요.
+SELECT
+    MONTH(START_DATE) AS MONTH,
+    CAR_ID,
+    COUNT(*) AS RECORDS
+FROM CAR_RENTAL_COMPANY_RENTAL_HISTORY
+WHERE CAR_ID IN (
+    SELECT CAR_ID
+    FROM CAR_RENTAL_COMPANY_RENTAL_HISTORY
+    WHERE START_DATE >= '2022-08-01' AND START_DATE < '2022-11-01'
+    GROUP BY CAR_ID
+    HAVING COUNT(*) >= 5
+)
+AND START_DATE >= '2022-08-01' AND START_DATE < '2022-11-01'
+GROUP BY MONTH, CAR_ID
+ORDER BY MONTH ASC, CAR_ID DESC;
+
+8. 이 서비스에서는 공간을 둘 이상 등록한 사람을 "헤비 유저"라고 부릅니다. 헤비 유저가 등록한 공간의 정보를 아이디 순으로 조회하는 SQL문을 작성해주세요.
+SELECT ID, NAME, HOST_ID
+FROM PLACES
+WHERE HOST_ID IN (
+    SELECT HOST_ID
+    FROM PLACES
+    GROUP BY HOST_ID
+    HAVING COUNT(*) >= 2
+)
+ORDER BY ID;
