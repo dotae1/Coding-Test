@@ -80,8 +80,6 @@ ORDER BY FEE DESC, c.CAR_TYPE ASC, c.CAR_ID DESC;
 
 3.보호소에서 중성화 수술을 거친 동물 정보를 알아보려 합니다. 보호소에 들어올 당시에는 중성화1되지 않았지만,
 보호소를 나갈 당시에는 중성화된 동물의 아이디와 생물 종, 이름을 조회하는 아이디 순으로 조회하는 SQL 문을 작성해주세요.
-
-
 SELECT
     o.ANIMAL_ID,
     o.ANIMAL_TYPE,
@@ -94,3 +92,16 @@ WHERE i.SEX_UPON_INTAKE LIKE 'Intact%' -- 들어올 때는 중성화 X
     o.SEX_UPON_OUTCOME LIKE 'Neutered%'
     )
 ORDER BY o.ANIMAL_ID;
+
+4.FOOD_PRODUCT와 FOOD_ORDER 테이블에서 생산일자가 2022년 5월인 식품들의 식품 ID, 식품 이름, 총매출을 조회하는 SQL문을 작성해주세요.
+이때 결과는 총매출을 기준으로 내림차순 정렬해주시고 총매출이 같다면 식품 ID를 기준으로 오름차순 정렬해주세요.
+SELECT
+    p.PRODUCT_ID,
+    p.PRODUCT_NAME,
+    SUM(o.AMOUNT * p.PRICE) AS TOTAL_SALES
+FROM FOOD_PRODUCT p
+JOIN FOOD_ORDER o ON p.PRODUCT_ID = o.PRODUCT_ID
+WHERE YEAR(o.PRODUCE_DATE) = 2022 AND MONTH(o.PRODUCE_DATE) = 05
+GROUP BY p.PRODUCT_ID, p.PRODUCT_NAME
+ORDER BY TOTAL_SALES DESC, PRODUCT_ID ASC
+

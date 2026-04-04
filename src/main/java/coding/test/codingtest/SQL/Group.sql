@@ -215,3 +215,36 @@ WHERE HOST_ID IN (
     HAVING COUNT(*) >= 2
 )
 ORDER BY ID;
+
+9. FOOD_PRODUCT 테이블에서 식품분류별로 가격이 제일 비싼 식품의 분류, 가격, 이름을 조회하는 SQL문을 작성해주세요.
+이때 식품분류가 '과자', '국', '김치', '식용유'인 경우만 출력시켜 주시고 결과는 식품 가격을 기준으로 내림차순 정렬해주세요.
+SELECT
+    CATEGORY,
+    PRICE AS MAX_PRICE,
+    PRODUCT_NAME
+FROM FOOD_PRODUCT f1
+WHERE CATEGORY IN ('과자', '국', '식용유', '김치')
+AND PRICE = (
+    SELECT MAX(PRICE)
+    FROM FOOD_PRODUCT f2
+    WHERE f1.CATEGORY = f2.CATEGORY
+)
+ORDER BY PRICE DESC
+
+10.2022년 1월의 도서 판매 데이터를 기준으로 저자 별, 카테고리 별 매출액(TOTAL_SALES = 판매량 * 판매가) 을 구하여,
+저자 ID(AUTHOR_ID), 저자명(AUTHOR_NAME), 카테고리(CATEGORY), 매출액(SALES) 리스트를 출력하는 SQL문을 작성해주세요.
+결과는 저자 ID를 오름차순으로, 저자 ID가 같다면 카테고리를 내림차순 정렬해주세요.
+SELECT
+    a.AUTHOR_ID,
+    a.AUTHOR_NAME,
+    b.CATEGORY,
+    SUM(s.SALES * b.PRICE) AS TOTAL_SALES
+FROM BOOK_SALES s
+JOIN BOOK b
+    ON s.BOOK_ID = b.BOOK_ID
+JOIN AUTHOR a
+    ON b.AUTHOR_ID = a.AUTHOR_ID
+WHERE YEAR(s.SALES_DATE) = 2022
+  AND MONTH(s.SALES_DATE) = 1
+GROUP BY a.AUTHOR_ID, a.AUTHOR_NAME, b.CATEGORY
+ORDER BY a.AUTHOR_ID ASC, b.CATEGORY DESC;
